@@ -1,0 +1,39 @@
+.workday-form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 24rem;
+}
+
+.workday-form input[type='date'],
+.workday-form input[type='time'],
+.workday-form input[type='number'] {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 0.5rem;
+}
+
+.workday-form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workday-form-hint {
+  opacity: 0.75;
+}
+
+.workday-form-error {
+  margin: 0;
+  color: #b00020;
+}
+
+.workday-form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.workday-form-actions button {
+  min-height: 2.5rem;
+  padding: 0 1rem;
+}

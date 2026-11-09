@@ -1,0 +1,28 @@
+.warnings {
+  border: 1px solid #c77700;
+  background: #fff8e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.warnings h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.warnings ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.warnings p {
+  margin: 0 0 0.25rem;
+}
+
+.warnings button {
+  min-height: 2.5rem;
+  padding: 0 1rem;
+}
