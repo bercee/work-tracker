@@ -54,6 +54,17 @@ describe('Today card', () => {
       expect(today().getByText('10:30')).toBeInTheDocument();
     });
 
+    it('sends the time of the click, not the time of the last clock refresh', async () => {
+      const server = await renderApp([]);
+      vi.setSystemTime(new Date('2026-11-11T10:31:20'));
+
+      await userEvent.click(today().getByRole('button', { name: 'Clock in' }));
+
+      expect(writes(server)).toEqual([
+        { method: 'POST', path: '/api/days', body: { date: '2026-11-11', clockIn: '10:31' } },
+      ]);
+    });
+
     it('shows an error when a Workday already exists for the date', async () => {
       const server = await renderApp([]);
       server.failNext(409, 'CONFLICT');

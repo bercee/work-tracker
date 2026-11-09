@@ -90,7 +90,7 @@ describe('Workdays API', () => {
     });
 
     it('rejects an unknown field', async () => {
-      const response = await post({ date: '2026-11-11', clockIn: '08:00', shift: 'early' });
+      const response = await post({ date: '2026-11-11', clockIn: '08:00', bogus: 'early' });
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });

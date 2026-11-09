@@ -7,7 +7,7 @@ import {
 } from '@work-tracker/contracts';
 import { addWorkday, patchWorkday } from '../api';
 import { defaultLunchMinutes, expectedMinutes, runningMinutes, workedMinutes } from '../balance';
-import { formatBalance, formatDate, formatDuration } from '../format';
+import { currentTime, formatBalance, formatDate, formatDuration } from '../format';
 import { numberOf, parseRequest } from '../form';
 import './TodayCard.css';
 
@@ -41,7 +41,8 @@ export const TodayCard: FC<TodayCardProps> = ({ workday, today, now, onChanged }
 
   const clockIn = () => {
     // Sent as typed rather than as parsed, so the schema's defaults are left to the server.
-    const body = { date: today, clockIn: now };
+    // The clock prop only refreshes every 30 seconds, so read the time again at the click.
+    const body = { date: today, clockIn: currentTime() };
     const parsed = parseRequest(createWorkdaySchema, body);
     if ('error' in parsed) return setError(parsed.error);
     void run(() => addWorkday(body));
@@ -116,7 +117,9 @@ export const TodayCard: FC<TodayCardProps> = ({ workday, today, now, onChanged }
           type="button"
           className="primary"
           disabled={busy}
-          onClick={() => patch(workday.date, { clockOut: now, ...lunchBody() }, () => setLunchDraft(undefined))}
+          onClick={() =>
+            patch(workday.date, { clockOut: currentTime(), ...lunchBody() }, () => setLunchDraft(undefined))
+          }
         >
           Clock out
         </button>
