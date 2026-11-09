@@ -1,0 +1,76 @@
+{
+  "id": "c934d892-d7d8-4a9f-a3e3-2bc8ca6bebaf",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.workdays": {
+      "name": "workdays",
+      "schema": "",
+      "columns": {
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "clock_in": {
+          "name": "clock_in",
+          "type": "time(0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clock_out": {
+          "name": "clock_out",
+          "type": "time(0)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lunch_minutes": {
+          "name": "lunch_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "half_day": {
+          "name": "half_day",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "workdays_clock_out_after_clock_in": {
+          "name": "workdays_clock_out_after_clock_in",
+          "value": "\"workdays\".\"clock_out\" IS NULL OR \"workdays\".\"clock_out\" > \"workdays\".\"clock_in\""
+        },
+        "workdays_lunch_minutes_range": {
+          "name": "workdays_lunch_minutes_range",
+          "value": "\"workdays\".\"lunch_minutes\" IS NULL OR \"workdays\".\"lunch_minutes\" BETWEEN 0 AND 1439"
+        },
+        "workdays_lunch_shorter_than_span": {
+          "name": "workdays_lunch_shorter_than_span",
+          "value": "\"workdays\".\"clock_out\" IS NULL OR \"workdays\".\"lunch_minutes\" IS NULL OR \"workdays\".\"lunch_minutes\" * interval '1 minute' < \"workdays\".\"clock_out\" - \"workdays\".\"clock_in\""
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
