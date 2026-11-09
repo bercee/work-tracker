@@ -1,0 +1,21 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+dist/
+coverage/
+
+*.db
+*.db-shm
+*.db-wal
+data/
+
+.DS_Store
+*.log
+
+# Installed agent skills (restore from skills-lock.json)
+.agents/
+.claude/skills/
+.claude/settings.local.json
+.claude/worktrees/
