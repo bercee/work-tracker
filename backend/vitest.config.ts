@@ -10,7 +10,6 @@ if (!Number.isInteger(currentNodeMajor) || currentNodeMajor < minimumNodeMajor) 
 export default defineConfig({
   test: {
     environment: 'node',
-    passWithNoTests: true,
     include: ['test/**/*.test.ts'],
     coverage: {
       provider: 'v8',
