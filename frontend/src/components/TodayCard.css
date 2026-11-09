@@ -1,0 +1,37 @@
+.today-card {
+  display: grid;
+  gap: 0.75rem;
+}
+.today-card h2,
+.today-card p {
+  margin: 0;
+}
+.today-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+.today-facts dt {
+  color: #46525e;
+  font-weight: 600;
+}
+.today-facts dd {
+  margin: 0.2rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.today-lunch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.5rem;
+}
+.today-lunch label {
+  grid-column: 1 / -1;
+}
+.today-hint {
+  color: #46525e;
+  align-self: center;
+}
