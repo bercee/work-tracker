@@ -1,0 +1,23 @@
+.balance-chart-plot {
+  height: 16rem;
+  margin-top: 0.75rem;
+}
+.balance-chart-plot svg {
+  /* Recharts focuses the SVG on click, and the outline would flash over the plot. */
+  outline: none;
+}
+.balance-chart-tooltip {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e3e8ee;
+  border-radius: 0.3rem;
+  background: white;
+  box-shadow: 0 1px 3px #0002;
+  font-variant-numeric: tabular-nums;
+}
+.balance-chart-tooltip p {
+  margin: 0;
+}
+.balance-chart-tooltip .balance-chart-tooltip-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
