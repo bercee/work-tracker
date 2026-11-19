@@ -1,8 +1,8 @@
-import { useState, type FC } from 'react';
+import { Fragment, useState, type FC } from 'react';
 import type { Workday } from '@work-tracker/contracts';
 import { ApiError, deleteWorkday } from '../api';
 import { isComplete, workedMinutes } from '../balance';
-import { formatDate, formatDuration } from '../format';
+import { formatDate, formatDuration, formatShortDate } from '../format';
 import { WorkdayForm } from './WorkdayForm';
 import './WorkdayList.css';
 
@@ -13,6 +13,43 @@ export interface WorkdayListProps {
 }
 
 const NONE = '–';
+const COLUMNS = 7;
+
+const PencilIcon: FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="18"
+    height="18"
+    aria-hidden="true"
+    focusable="false"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+  </svg>
+);
+
+const CrossIcon: FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="18"
+    height="18"
+    aria-hidden="true"
+    focusable="false"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </svg>
+);
 
 export const WorkdayList: FC<WorkdayListProps> = ({ workdays, today, onChanged }) => {
   const [adding, setAdding] = useState(false);
@@ -54,60 +91,105 @@ export const WorkdayList: FC<WorkdayListProps> = ({ workdays, today, onChanged }
 
       {deleteError !== undefined && <p role="alert">{deleteError}</p>}
 
-      <ul>
-        {sorted.map((workday) => {
-          const worked = workedMinutes(workday);
-          return (
-            <li key={workday.date}>
-              <header>
-                <time dateTime={workday.date}>{formatDate(workday.date)}</time>
-                {workday.halfDay && <span className="marker">Half day</span>}
-                {!isComplete(workday) && <span className="marker marker-incomplete">Incomplete</span>}
-              </header>
-              {editing === workday.date ? (
-                <WorkdayForm
-                  workday={workday}
-                  today={today}
-                  onSaved={async () => {
-                    await onChanged();
-                    setEditing(undefined);
-                  }}
-                  onCancel={() => setEditing(undefined)}
-                />
-              ) : (
-                <>
-                  <dl>
-                    <div>
-                      <dt>Clock-in</dt>
-                      <dd>{workday.clockIn}</dd>
-                    </div>
-                    <div>
-                      <dt>Clock-out</dt>
-                      <dd>{workday.clockOut ?? NONE}</dd>
-                    </div>
-                    <div>
-                      <dt>Lunch break</dt>
-                      <dd>{workday.lunchMinutes === null ? NONE : `${workday.lunchMinutes} min`}</dd>
-                    </div>
-                    <div>
-                      <dt>Worked hours</dt>
-                      <dd>{worked === null ? NONE : formatDuration(worked)}</dd>
-                    </div>
-                  </dl>
-                  <div className="workday-list-actions">
-                    <button type="button" onClick={() => setEditing(workday.date)}>
-                      Edit
-                    </button>
-                    <button type="button" onClick={() => void remove(workday)}>
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col" className="num">
+                In
+              </th>
+              <th scope="col" className="num">
+                Out
+              </th>
+              <th scope="col" className="num">
+                Lunch (min)
+              </th>
+              <th scope="col" className="num">
+                Worked
+              </th>
+              <th scope="col">
+                <span className="visually-hidden">Edit</span>
+              </th>
+              <th scope="col">
+                <span className="visually-hidden">Delete</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((workday) => {
+              const worked = workedMinutes(workday);
+              const fullDate = formatDate(workday.date);
+              return (
+                <Fragment key={workday.date}>
+                  <tr className={isComplete(workday) ? undefined : 'incomplete'}>
+                    <td>
+                      <time dateTime={workday.date} title={fullDate}>
+                        {formatShortDate(workday.date, today)}
+                      </time>
+                      {workday.halfDay && (
+                        <>
+                          {' '}
+                          <span className="half-day" role="img" aria-label="Half day" title="Half day">
+                            ½
+                          </span>
+                        </>
+                      )}
+                      {!isComplete(workday) && (
+                        <>
+                          {' '}
+                          <span className="visually-hidden">Incomplete</span>
+                        </>
+                      )}
+                    </td>
+                    <td className="num">{workday.clockIn}</td>
+                    <td className="num">{workday.clockOut ?? NONE}</td>
+                    <td className="num">{workday.lunchMinutes ?? NONE}</td>
+                    <td className="num">{worked === null ? NONE : formatDuration(worked)}</td>
+                    <td className="action">
+                      <button
+                        type="button"
+                        className="icon-button"
+                        aria-label={`Edit Workday on ${fullDate}`}
+                        title={`Edit Workday on ${fullDate}`}
+                        onClick={() => setEditing(workday.date)}
+                      >
+                        <PencilIcon />
+                      </button>
+                    </td>
+                    <td className="action">
+                      <button
+                        type="button"
+                        className="icon-button"
+                        aria-label={`Delete Workday on ${fullDate}`}
+                        title={`Delete Workday on ${fullDate}`}
+                        onClick={() => void remove(workday)}
+                      >
+                        <CrossIcon />
+                      </button>
+                    </td>
+                  </tr>
+                  {editing === workday.date && (
+                    <tr className="form-row">
+                      <td colSpan={COLUMNS}>
+                        <WorkdayForm
+                          workday={workday}
+                          today={today}
+                          onSaved={async () => {
+                            await onChanged();
+                            setEditing(undefined);
+                          }}
+                          onCancel={() => setEditing(undefined)}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 };

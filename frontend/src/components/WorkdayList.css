@@ -1,59 +1,62 @@
-.workday-list ul {
-  list-style: none;
-  margin: 1rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
+.workday-list th,
+.workday-list td {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #d0d0d0;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
 }
 
-.workday-list li {
-  border: 1px solid #d0d0d0;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-}
-
-.workday-list header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+.workday-list th {
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
-.workday-list .marker {
-  font-size: 0.75rem;
-  font-weight: 400;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  padding: 0 0.5rem;
+.workday-list .num {
+  text-align: right;
 }
 
-.workday-list .marker-incomplete {
+.workday-list td.action {
+  width: 1%;
+  padding-block: 0.25rem;
+}
+
+.workday-list .half-day {
+  margin-left: 0.35rem;
+  padding: 0 0.35rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.workday-list tr.incomplete {
+  background: #fff1d6;
   color: #8a5300;
 }
 
-.workday-list dl {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
-  gap: 0.5rem;
-  margin: 0.5rem 0;
+.workday-list .icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
 }
 
-.workday-list dt {
-  font-size: 0.75rem;
-  opacity: 0.75;
+.workday-list .icon-button:hover {
+  background: #0001;
 }
 
-.workday-list dd {
-  margin: 0;
+.workday-list tr.incomplete .icon-button:focus-visible {
+  outline-color: #8a5300;
 }
 
-.workday-list-actions {
-  display: flex;
-  gap: 0.5rem;
+.workday-list .form-row td {
+  padding: 0.75rem 0.5rem;
+  white-space: normal;
 }
 
-.workday-list button {
-  min-height: 2.5rem;
-  padding: 0 1rem;
+.workday-list .table-wrap {
+  margin-top: 1rem;
 }

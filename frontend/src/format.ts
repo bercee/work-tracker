@@ -7,6 +7,14 @@ export const currentTime = (): string =>
 export const formatDate = (date: string): string =>
   new Date(`${date}T00:00:00`).toLocaleDateString('hu-HU', { dateStyle: 'medium' });
 
+export const formatShortDate = (date: string, today: string): string =>
+  new Date(`${date}T00:00:00`).toLocaleDateString('hu-HU', {
+    ...(date.slice(0, 4) === today.slice(0, 4) ? {} : { year: 'numeric' as const }),
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  });
+
 export const formatDuration = (minutes: number): string => {
   const hours = Math.floor(minutes / 60);
   return `${hours}:${String(minutes % 60).padStart(2, '0')}`;

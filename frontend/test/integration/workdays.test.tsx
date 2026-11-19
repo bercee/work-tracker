@@ -31,9 +31,16 @@ const warnings = () => within(screen.getByRole('region', { name: 'Warnings' }));
 const workdaysRegion = () => within(screen.getByRole('region', { name: 'Workdays' }));
 
 // Rows carry their date as a machine-readable <time>, so tests find one without depending on the display format.
-const rowFor = (date: string) => {
-  const row = document.querySelector(`[aria-label="Workdays"] time[datetime="${date}"]`)?.closest('li');
+const dataRowFor = (date: string) => {
+  const row = document.querySelector(`[aria-label="Workdays"] time[datetime="${date}"]`)?.closest('tr');
   if (!(row instanceof HTMLElement)) throw new Error(`No row for ${date}`);
+  return row;
+};
+const rowFor = (date: string) => within(dataRowFor(date));
+
+const formRowFor = (date: string) => {
+  const row = dataRowFor(date).nextElementSibling;
+  if (!(row instanceof HTMLElement) || row.querySelector('time') !== null) throw new Error(`No form row for ${date}`);
   return within(row);
 };
 
@@ -142,14 +149,43 @@ describe('Workday list', () => {
     const complete = rowFor('2026-11-06');
     expect(complete.getByText('08:00')).toBeInTheDocument();
     expect(complete.getByText('17:30')).toBeInTheDocument();
-    expect(complete.getByText('60 min')).toBeInTheDocument();
+    expect(complete.getByText('60')).toBeInTheDocument();
     expect(complete.getByText('8:30')).toBeInTheDocument();
     expect(complete.queryByText('Incomplete')).not.toBeInTheDocument();
-    expect(complete.queryByText('Half day')).not.toBeInTheDocument();
+    expect(complete.queryByRole('img', { name: 'Half day' })).not.toBeInTheDocument();
 
-    expect(rowFor('2026-11-10').getByText('Half day')).toBeInTheDocument();
+    expect(rowFor('2026-11-10').getByRole('img', { name: 'Half day' })).toBeInTheDocument();
     expect(rowFor('2026-11-05').getByText('Incomplete')).toBeInTheDocument();
-    expect(rowFor('2026-11-08').getByText('0 min')).toBeInTheDocument();
+    expect(rowFor('2026-11-08').getByText('0')).toBeInTheDocument();
+
+    expect(dataRowFor('2026-11-05')).toHaveClass('incomplete');
+    expect(dataRowFor('2026-11-06')).not.toHaveClass('incomplete');
+  });
+
+  it('is a table with one header per column', async () => {
+    await load();
+
+    const table = workdaysRegion().getByRole('table');
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((header) => header.textContent),
+    ).toEqual(['Date', 'In', 'Out', 'Lunch (min)', 'Worked', 'Edit', 'Delete']);
+    expect(within(table).getAllByRole('row')).toHaveLength(workedExample.length + 1);
+  });
+
+  it('shows a short date in the cell and the full date as its tooltip', async () => {
+    await load();
+
+    const time = dataRowFor('2026-11-06').querySelector('time');
+    expect(time).toHaveTextContent('11. 06., P');
+    expect(time).toHaveAttribute('title', '2026. nov. 6.');
+  });
+
+  it('shows a dash for each missing value', async () => {
+    await load([workday('2026-11-11', '08:00', null, null)]);
+
+    expect(rowFor('2026-11-11').getAllByText('–')).toHaveLength(3);
   });
 
   it('adds a past Workday, saving the pre-filled Lunch break on submit', async () => {
@@ -205,7 +241,7 @@ describe('Workday list', () => {
 
     await userEvent.click(workdaysRegion().getByRole('button', { name: 'Add past Workday' }));
     const form = workdaysRegion();
-    await userEvent.click(form.getByLabelText('Half day'));
+    await userEvent.click(form.getByRole('checkbox', { name: 'Half day' }));
 
     expect(form.getByLabelText('Lunch break (minutes)')).toHaveValue(0);
   });
@@ -253,8 +289,9 @@ describe('Workday list', () => {
   it('edits a Workday with a PATCH and updates the Balance', async () => {
     const server = await load();
 
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Edit' }));
-    const form = rowFor('2026-11-06');
+    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Edit Workday on 2026. nov. 6.' }));
+    const form = formRowFor('2026-11-06');
+    expect(rowFor('2026-11-06').getByText('17:30')).toBeInTheDocument();
     expect(form.getByLabelText('Date')).toHaveValue('2026-11-06');
     expect(form.getByLabelText('Date')).toHaveAttribute('readonly');
     await fill(form, 'Clock-out', '18:30');
@@ -275,32 +312,33 @@ describe('Workday list', () => {
   it('shows a server error when an edit is rejected', async () => {
     const server = await load();
 
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Edit' }));
+    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: /Edit Workday on/ }));
     server.failNext(404, 'NOT_FOUND');
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Save' }));
+    await userEvent.click(formRowFor('2026-11-06').getByRole('button', { name: 'Save' }));
 
-    expect(await rowFor('2026-11-06').findByRole('alert')).toHaveTextContent('Not found.');
+    expect(await formRowFor('2026-11-06').findByRole('alert')).toHaveTextContent('Not found.');
   });
 
   it('leaves the data unchanged when an edit is cancelled', async () => {
     const server = await load();
     const before = server.workdays();
 
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Edit' }));
-    await fill(rowFor('2026-11-06'), 'Clock-out', '20:00');
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: /Edit Workday on/ }));
+    await fill(formRowFor('2026-11-06'), 'Clock-out', '20:00');
+    await userEvent.click(formRowFor('2026-11-06').getByRole('button', { name: 'Cancel' }));
 
     expect(mutations(server)).toHaveLength(0);
     expect(server.workdays()).toEqual(before);
     expect(rowFor('2026-11-06').getByText('17:30')).toBeInTheDocument();
-    expect(rowFor('2026-11-06').queryByLabelText('Clock-out')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Clock-out')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('table')).getAllByRole('row')).toHaveLength(workedExample.length + 1);
   });
 
   it('deletes a Workday once confirmed', async () => {
     const server = await load();
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
 
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Delete' }));
+    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Delete Workday on 2026. nov. 6.' }));
 
     expect(confirm).toHaveBeenCalledOnce();
     await vi.waitFor(() => expect(document.querySelector('time[datetime="2026-11-06"]')).toBeNull());
@@ -313,7 +351,7 @@ describe('Workday list', () => {
     const server = await load();
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: 'Delete' }));
+    await userEvent.click(rowFor('2026-11-06').getByRole('button', { name: /Delete Workday on/ }));
 
     expect(mutations(server)).toHaveLength(0);
     expect(rowFor('2026-11-06').getByText('17:30')).toBeInTheDocument();
