@@ -113,7 +113,6 @@ label {
 }
 
 .table-wrap {
-  /* Containing block for .visually-hidden children, which would otherwise escape the scroll box. */
   position: relative;
   overflow-x: auto;
 }
@@ -138,7 +137,6 @@ td {
   }
 }
 
-/* Text for assistive technology only; keeps the element in the accessibility tree, unlike display: none. */
 .visually-hidden {
   position: absolute;
   width: 1px;

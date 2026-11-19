@@ -7,8 +7,6 @@ export const currentTime = (): string =>
 export const formatDate = (date: string): string =>
   new Date(`${date}T00:00:00`).toLocaleDateString('hu-HU', { dateStyle: 'medium' });
 
-// The year is only worth the column width when it isn't the current one; `today` is a parameter so
-// callers control the clock. Compared as ISO prefixes to avoid a second Date parse.
 export const formatShortDate = (date: string, today: string): string =>
   new Date(`${date}T00:00:00`).toLocaleDateString('hu-HU', {
     ...(date.slice(0, 4) === today.slice(0, 4) ? {} : { year: 'numeric' as const }),

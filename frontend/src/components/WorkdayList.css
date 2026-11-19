@@ -17,7 +17,6 @@
 
 .workday-list td.action {
   width: 1%;
-  /* Room for the focus ring so the scroll wrapper doesn't clip it on the last row. */
   padding-block: 0.25rem;
 }
 
@@ -29,7 +28,6 @@
   font-size: 0.75rem;
 }
 
-/* #8a5300 on this tint is about 5.7:1, above the 4.5:1 AA threshold for text. */
 .workday-list tr.incomplete {
   background: #fff1d6;
   color: #8a5300;
@@ -50,7 +48,6 @@
   background: #0001;
 }
 
-/* The global amber ring is under 3:1 against the amber row tint. */
 .workday-list tr.incomplete .icon-button:focus-visible {
   outline-color: #8a5300;
 }

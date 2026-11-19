@@ -38,7 +38,6 @@ const dataRowFor = (date: string) => {
 };
 const rowFor = (date: string) => within(dataRowFor(date));
 
-// The edit form sits in its own full-width row directly below the Workday it edits.
 const formRowFor = (date: string) => {
   const row = dataRowFor(date).nextElementSibling;
   if (!(row instanceof HTMLElement) || row.querySelector('time') !== null) throw new Error(`No form row for ${date}`);
