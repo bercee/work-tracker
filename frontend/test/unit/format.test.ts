@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { currentTime, formatBalance, formatDate, formatDuration, today } from '../../src/format';
+import { currentTime, formatBalance, formatDate, formatDuration, formatShortDate, today } from '../../src/format';
 
 describe('clock', () => {
   beforeEach(() => {
@@ -30,6 +30,20 @@ describe('clock', () => {
 describe('formatDate', () => {
   it('formats in Hungarian medium style, from local midnight', () => {
     expect(formatDate('2026-11-11')).toBe('2026. nov. 11.');
+  });
+});
+
+describe('formatShortDate', () => {
+  it('omits the year within the current year and shows the weekday', () => {
+    expect(formatShortDate('2026-11-19', '2026-11-19')).toBe('11. 19., Cs');
+  });
+
+  it('includes the year when it differs from the current year', () => {
+    expect(formatShortDate('2025-12-30', '2026-01-02')).toBe('2025. 12. 30., K');
+  });
+
+  it('does not slip a day at the start of a month', () => {
+    expect(formatShortDate('2026-03-01', '2026-03-15')).toBe('03. 01., V');
   });
 });
 
